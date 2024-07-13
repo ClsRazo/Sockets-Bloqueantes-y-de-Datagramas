@@ -1,0 +1,137 @@
+package com.mycompany.practica2;
+
+import java.io.*;
+import java.net.*;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Cliente {
+    private static final String IP = "127.0.0.1";
+    private static final int PUERTO = 12345;
+
+    public static void main(String[] args) {
+        try {
+            Scanner lectura = new Scanner(System.in);
+            System.out.print("Ingrese el tamaño del paquete: ");
+            int tamPaquete = lectura.nextInt();
+            System.out.print("Ingrese el tamaño de la ventana: ");
+            int tamVentana = lectura.nextInt();
+
+            DatagramSocket cS = new DatagramSocket();
+            InetAddress sA = InetAddress.getByName(IP);
+
+            //Se envia el tamaño del paquete y ventana al servidor
+            enviarTams(cS, sA, PUERTO, tamPaquete, tamVentana);
+
+            //Se espera la confirmación del servidor de recibido
+            byte[] datoRecibido = new byte[1];
+            DatagramPacket packRecibido = new DatagramPacket(datoRecibido, datoRecibido.length);
+            cS.receive(packRecibido);
+
+            if(datoRecibido[0] == 1){
+                System.out.println("Conexión establecida con el servidor...");
+                System.out.println("Confirmación recibida.");
+            } else {
+                System.out.println("Error en la confirmación.");
+                cS.close();
+                lectura.close();
+                return;
+            }
+
+            //Se envia el archivo al servidor
+            enviarArchivo(cS, sA, PUERTO, tamPaquete, tamVentana);
+
+            cS.close();
+            lectura.close();
+
+            System.out.println("Archivo enviado al servidor.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void enviarTams(DatagramSocket cS, InetAddress aS, int puertoSer, int tamPaquete, int tamVentana) throws IOException {
+        //Se envia el tamaño del paquete y ventana al servidor como cadena, pero en bytes
+        byte[] tamVentanaD = (tamPaquete + "," + tamVentana).getBytes();
+        DatagramPacket tamVentanaP = new DatagramPacket(tamVentanaD, tamVentanaD.length, aS, puertoSer);
+        cS.send(tamVentanaP);
+    }
+
+    private static void enviarArchivo(DatagramSocket cS, InetAddress aS, int puertoSer, int tamPaquete, int tamVentana) throws IOException {
+
+        File archivo = new File("src/main/java/com/mycompany/practica2/Cliente.java");
+        
+        //Se envia el tamaño del archivo al servidor
+        String tamArchivoStr = String.valueOf(archivo.length());
+        byte[] tamArchivoBytes = tamArchivoStr.getBytes();
+        DatagramPacket packEnviar = new DatagramPacket(tamArchivoBytes, tamArchivoBytes.length, aS, puertoSer);
+        cS.send(packEnviar);
+
+        //Se envia el archivo al servidor
+        byte[] buffer = new byte[tamPaquete];
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(archivo));
+
+        //Variables para contar bytes leidos y el numero de paquete actual
+        int bytesLectura = 0;
+        int paqueteActual = 0;
+
+        while(true){
+            paqueteActual = 0;
+            for(int i = 0; i < tamVentana; i++){
+                bytesLectura = bis.read(buffer);
+                System.out.println("Bytes leidos: " + bytesLectura);
+                if(bytesLectura == -1) break;
+                paqueteActual++;
+
+                packEnviar = new DatagramPacket(buffer, bytesLectura, aS, puertoSer);
+                cS.send(packEnviar);
+
+                String numPaquete = String.valueOf(paqueteActual);
+                byte[] bytesNumPacket = numPaquete.getBytes();
+                packEnviar = new DatagramPacket(bytesNumPacket, bytesNumPacket.length, aS, puertoSer);
+                cS.send(packEnviar);
+
+                System.out.println("Enviando paquete: " + numPaquete + " con un tamaño de: " + bytesLectura + " bytes");
+                
+            }
+
+            //Verificamos si se llegó al final del archivo
+            if(bytesLectura == -1) break;
+
+        }
+
+        // while((bytesLectura = bis.read(buffer)) != -1){
+        //     int paquetesEnviados = 0;
+        //     boolean salir = false;
+        //     while(paquetesEnviados < tamVentana) {
+        //         packEnviar = new DatagramPacket(buffer, bytesLectura, aS, puertoSer);
+        //         cS.send(packEnviar);
+
+        //         String numPaquete = String.valueOf(paquetesEnviados+1);
+        //         byte[] bytesNumPacket = numPaquete.getBytes();
+        //         packEnviar = new DatagramPacket(bytesNumPacket, bytesNumPacket.length, aS, puertoSer);
+        //         cS.send(packEnviar);
+
+        //         System.out.println("Enviando paquete: " + numPaquete + " con un tamaño de: " + bytesLectura + " bytes");
+                
+        //         paquetesEnviados++;
+
+
+
+        //         bytesLectura = bis.read(buffer);
+        //         System.out.println("Bytes leidos: " + bytesLectura);
+        //         if(bytesLectura == -1){
+        //             // System.out.println("Entrando a break");
+        //             salir = true;
+        //             break;
+        //         }
+        //     }
+        //     if(salir) break;
+        // }
+
+        bis.close();
+    }
+}
+

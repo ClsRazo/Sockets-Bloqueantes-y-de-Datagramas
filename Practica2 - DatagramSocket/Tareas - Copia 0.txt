@@ -1,0 +1,53 @@
+FEPI
+- Perspectivas del BSC (4 incisos) - Rod, Pablo, Rorro
+- CMI -> Tablero de Objetivos - Rorro, Pablo, Braulio
+- FODA (Fortalezas - Nat, Oportunidades - Nat, Debilidades - Diego, Amenazas - Diego)
+- Propuestas de valor - Rorro y Braulio
+- Objetivos - Rod y Pablo
+	- KPIs - Rod
+	- KGIs - Rod
+
+Tareas por persona:
+	- Pablo: 3
+	- Razo: 4
+	- Rod: 4
+	- Rorro: 3
+	- Nat: 3
+	- Barulio: 3
+	- Diego: 3
+
+REDES
+- Práctica 2 (reporte)		
+
+FAS
+- Reporte de proyecto y prácticas 10, 11, 13
+
+MEXICANO
+- No hay
+
+IDALIA
+- Hacer cambios de pantallas en el documento
+
+	EQUIPOS:
+	Scrum Master: Razo
+	Front end Lider: Ivan
+	Back End Lider: Jesus
+	Documentación Lider: Denisse
+
+	Back end:
+	- Issac
+	- Chris
+	- Willis
+	- Jesus
+	Front end:
+	- Ana
+	- Ivan
+	- Anuar
+	- Gabriel
+	Documentación:
+	- Denisse
+	- Illescas
+	- Razo
+
+METODOS
+- Investigación de sistemas
